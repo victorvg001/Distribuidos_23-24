@@ -58,10 +58,12 @@ class Directory(IceDrive.Directory):
     
     def getChild(self, name: str, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Return the proxy to one specific directory inside the current one."""
+        if name in self.children:
+            return IceDrive.DirectoryPrx.uncheckedCast(self.children[name])
+        else:
+            return None
 
-    def createChild(
-        self, name: str, current: Ice.Current = None
-    ) -> IceDrive.DirectoryPrx:
+    def createChild(self, name: str, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Create a new child directory and returns its proxy."""
 
     def removeChild(self, name: str, current: Ice.Current = None) -> None:
