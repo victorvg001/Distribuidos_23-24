@@ -1,0 +1,10 @@
+{
+    "user1":[
+        {
+            "name" : "root",
+            "parent" : "None",
+            "childrens" : ["dir1", "dir2"],
+            "files" : []
+        }
+    ]
+}
