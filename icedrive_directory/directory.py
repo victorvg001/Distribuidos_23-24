@@ -22,7 +22,7 @@ class Directory(IceDrive.Directory):
         if self.parent != "None":
             return IceDrive.DirectoryPrx.uncheckedCast(self.parent)
         else:
-            raise IceDrive.RootHasNoParent()
+            return None
         
     def getChilds(self, current: Ice.Current = None) -> List[str]:
         """Return a list of names of the directories contained in the directory."""
