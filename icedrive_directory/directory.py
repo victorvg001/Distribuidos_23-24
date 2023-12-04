@@ -3,7 +3,7 @@
 from typing import List
 
 import Ice
-Ice.loadSlice('icedrive.ice')
+
 import IceDrive
 
 import json
@@ -20,9 +20,11 @@ class Directory(IceDrive.Directory):
     def getParent(self, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Return the proxy to the parent directory, if it exists. None in other case."""
         if self.parent != "None":
-            return IceDrive.DirectoryPrx.uncheckedCast(self.parent)
+            parent = Directory()
+            proxy = current.adapter.addWithUUID(parent)
+            return IceDrive.DirectoryPrx.uncheckedCast(proxy)
         else:
-            return None
+            raise IceDrive.RootHasNoParent()
         
     def getChilds(self, current: Ice.Current = None) -> List[str]:
         """Return a list of names of the directories contained in the directory."""
@@ -69,7 +71,8 @@ class DirectoryService(IceDrive.DirectoryService):
             root.childrens = d[user][0]["childrens"]
             root.files = d[user][0]["files"]
 
-            return self.sendProxy(root)
+            proxy = current.adapter.addWithUUID(root)
+            return IceDrive.DirectoryPrx.uncheckedCast(proxy)
         else:
             root = Directory(user)
             root.name = "root"
@@ -83,14 +86,5 @@ class DirectoryService(IceDrive.DirectoryService):
             with open ('directorios.json', 'w') as file:
                 json.dump(d, file)
 
-            return self.sendProxy(root)
-
-
-    def sendProxy(self, dir: Directory) -> IceDrive.DirectoryPrx:
-        adapter = self.communicator().createObjectAdapter("DirectoryAdapter")
-        adapter.activate()
-
-        servant = dir
-        servant_proxy = adapter.addWithUUID(servant)
-        return servant_proxy
-            
+            proxy = current.adapter.addWithUUID(root)
+            return IceDrive.DirectoryPrx.uncheckedCast(proxy)
