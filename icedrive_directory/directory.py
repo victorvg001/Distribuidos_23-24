@@ -20,16 +20,19 @@ class Directory(IceDrive.Directory):
 
     def getParent(self, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Return the proxy to the parent directory, if it exists. None in other case."""
-        if self.parent != "None":
+        #comprobamos que tiene padre
+        if self.name != "root":
             parent = Directory(self.user)
 
             with open("directorios.json", "r") as file:
                 d = json.load(file)
 
+            #Acortamos la ruta
             nombreVector = self.name.split("/")
             nombreVector.pop()
             parent.name = "/".join(nombreVector)
 
+            #Leemos y enviamos el proxi
             for i in d[self.user]:
                 if i["name"] == parent.name:
                     parent.childrens = i["childrens"]
@@ -82,6 +85,7 @@ class DirectoryService(IceDrive.DirectoryService):
         with open("directorios.json", "r") as file:
             d = json.load(file)
 
+        #comprobamos si ya tiene directorios y lo cargamos, si no tiene lo creamos
         if d[user]:
             root = Directory(user)
             root.name = d[user][0]["name"]
