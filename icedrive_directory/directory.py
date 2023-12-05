@@ -8,28 +8,42 @@ import IceDrive
 
 import json
 
+
 class Directory(IceDrive.Directory):
     """Implementation of the IceDrive.Directory interface."""
+
     def __init__(self, name):
         self.user = name
         self.name = "root"
-        self.parent = "None"
         self.childrens = {}
         self.files = {}
 
     def getParent(self, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Return the proxy to the parent directory, if it exists. None in other case."""
         if self.parent != "None":
-            parent = Directory()
+            parent = Directory(self.user)
+
+            with open("directorios.json", "r") as file:
+                d = json.load(file)
+
+            nombreVector = self.name.split("/")
+            nombreVector.pop()
+            parent.name = "/".join(nombreVector)
+
+            for i in d[self.user]:
+                if i["name"] == parent.name:
+                    parent.childrens = i["childrens"]
+                    parent.files = i["files"]
+
             proxy = current.adapter.addWithUUID(parent)
             return IceDrive.DirectoryPrx.uncheckedCast(proxy)
         else:
             raise IceDrive.RootHasNoParent()
-        
+
     def getChilds(self, current: Ice.Current = None) -> List[str]:
         """Return a list of names of the directories contained in the directory."""
         return list(self.childs.keys())
-    
+
     def getChild(self, name: str, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Return the proxy to one specific directory inside the current one."""
         if name in self.children:
@@ -37,7 +51,9 @@ class Directory(IceDrive.Directory):
         else:
             return None
 
-    def createChild(self, name: str, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
+    def createChild(
+        self, name: str, current: Ice.Current = None
+    ) -> IceDrive.DirectoryPrx:
         """Create a new child directory and returns its proxy."""
 
     def removeChild(self, name: str, current: Ice.Current = None) -> None:
@@ -50,7 +66,8 @@ class Directory(IceDrive.Directory):
         """Return the "blob id" for a given file name inside the directory."""
 
     def linkFile(
-        self, filename: str, blob_id: str, current: Ice.Current = None) -> None:
+        self, filename: str, blob_id: str, current: Ice.Current = None
+    ) -> None:
         """Link a file to a given blob_id."""
 
     def unlinkFile(self, filename: str, current: Ice.Current = None) -> None:
@@ -62,9 +79,9 @@ class DirectoryService(IceDrive.DirectoryService):
 
     def getRoot(self, user: str, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Return the proxy for the root directory of the given user."""
-        with open ('directorios.json', 'r') as file:
+        with open("directorios.json", "r") as file:
             d = json.load(file)
-        
+
         if d[user]:
             root = Directory(user)
             root.name = d[user][0]["name"]
@@ -77,13 +94,10 @@ class DirectoryService(IceDrive.DirectoryService):
             root = Directory(user)
             root.name = "root"
             d[user] = []
-            d[user].append({
-                "name" : "root",
-                "parent" : "None",
-                "childrens" : [],
-                "files" : []
-            })
-            with open ('directorios.json', 'w') as file:
+            d[user].append(
+                {"name": "root", "childrens": [], "files": []}
+            )
+            with open("directorios.json", "w") as file:
                 json.dump(d, file)
 
             proxy = current.adapter.addWithUUID(root)
