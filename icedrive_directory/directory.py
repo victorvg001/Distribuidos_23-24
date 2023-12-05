@@ -15,7 +15,7 @@ class Directory(IceDrive.Directory):
     def __init__(self, name):
         self.user = name
         self.name = "root"
-        self.childrens = {}
+        self.childrens = []
         self.files = {}
 
     def getParent(self, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
@@ -45,7 +45,7 @@ class Directory(IceDrive.Directory):
 
     def getChilds(self, current: Ice.Current = None) -> List[str]:
         """Return a list of names of the directories contained in the directory."""
-        return list(self.childs.keys())
+        return self.childrens
 
     def getChild(self, name: str, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Return the proxy to one specific directory inside the current one."""
@@ -64,7 +64,7 @@ class Directory(IceDrive.Directory):
 
     def getFiles(self, current: Ice.Current = None) -> List[str]:
         """Return a list of the files linked inside the current directory."""
-
+        return list(self.files.keys())
     def getBlobId(self, filename: str, current: Ice.Current = None) -> str:
         """Return the "blob id" for a given file name inside the directory."""
 

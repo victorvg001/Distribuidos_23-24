@@ -3,22 +3,22 @@
         {
             "name" : "root",
             "childrens" : ["dir1", "dir2"],
-            "files" : []
+            "files" : {}
         },
         {
             "name" : "root/dir1",
             "childrens" : ["dir1"],
-            "files" : []
+            "files" : {}
         },
         {
             "name" : "root/dir1/dir1",
             "childrens" : [],
-            "files" : []
+            "files" : {}
         },
         {
             "name" : "root/dir2",   
             "childrens" : [],
-            "files" : []
+            "files" : {}
         }
     ]
 }
