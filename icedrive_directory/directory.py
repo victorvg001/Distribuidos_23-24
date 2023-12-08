@@ -106,23 +106,20 @@ class Directory(IceDrive.Directory):
         with open("directorios.json", "r") as file:
             d = json.load(file)
         
-        aux1 = self.name.split("/")
-        aux2 = name.split("/")
-
-        if aux2[len(aux1)] in self.childrens:
-
-            #borramos de forma recurrente el directorio
+        #Borramos recursivamente los directorios
+        path = self.name + "/" + name
+        if path.split("/")[len(self.name.split("/"))] in self.childrens:
             for i in d[self.user]:
-                if i["name"] == self.name + aux2[len(aux1):]:
+                if i["name"] == path:
+                    newpath = path.split("/") 
                     for j in i["childrens"]:
-                        self.removeChild(i["name"] + "/" + j)
-                        padre = i.split("/")
-                        padre.pop()
-                        for k in d[self.user]:
-                            if k["name"] == "/".join(padre):
-                                k["childrens"].remove(name)
-                        d[self.user].remove(i)
-            
+                        self.removeChild("/".join(newpath[len(self.name.split("/")):]) + "/" + j)
+                    #quitar files
+                    for k in d[self.user]:
+                            if k["name"] == "/".join(newpath[:-1]):
+                                k["childrens"].remove(newpath[-1])
+                                #quitar files
+                    d[self.user].remove(i)
 
             #Guardamos el json modificado
             with open("directorios.json", "w") as file:

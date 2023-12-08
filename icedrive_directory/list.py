@@ -4,7 +4,10 @@ if "1" in a:
 a.remove("3")
 print(list(a))
 name = "jaime/1/2/3"
+name.split("/")
+print(name)
 padre = name.split("/")
+print(padre[:-1])
 padre.pop()
 
 print("/".join(padre))
