@@ -106,34 +106,42 @@ class Directory(IceDrive.Directory):
         with open("directorios.json", "r") as file:
             d = json.load(file)
         
-        #Borramos recursivamente los directorios
+        #hacemos la ruta y comprobamos que el directorio a borrar existe en la lista de hijos, si no, lanzamos la excepción
         path = self.name + "/" + name
         if path.split("/")[len(self.name.split("/"))] in self.childrens:
+            #Borramos recursivamente los directorios
             for i in d[self.user]:
                 if i["name"] == path:
                     newpath = path.split("/") 
+                    #borramos los directorios hijos
                     for j in i["childrens"]:
                         self.removeChild("/".join(newpath[len(self.name.split("/")):]) + "/" + j)
                     #quitar files
+                    #borramos el string de la lista de hijos del padre
                     for k in d[self.user]:
                             if k["name"] == "/".join(newpath[:-1]):
                                 k["childrens"].remove(newpath[-1])
                                 #quitar files
+                    #eliminamos el directorio de mayor profundidad a menos hasta llegar al que se solicitaba
                     d[self.user].remove(i)
 
             #Guardamos el json modificado
             with open("directorios.json", "w") as file:
                 json.dump(d, file)
 
+            #si todo va bien devolvemos None
             return None
         else:
             raise IceDrive.ChildNotExists(name, self.name)
 
     def getFiles(self, current: Ice.Current = None) -> List[str]:
         """Return a list of the files linked inside the current directory."""
+        #devuelve una lista con las claves(nombres) de los ficheros
         return list(self.files.keys())
+    
     def getBlobId(self, filename: str, current: Ice.Current = None) -> str:
         """Return the "blob id" for a given file name inside the directory."""
+        #
 
     def linkFile(
         self, filename: str, blob_id: str, current: Ice.Current = None
