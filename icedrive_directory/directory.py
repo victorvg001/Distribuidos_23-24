@@ -106,23 +106,23 @@ class Directory(IceDrive.Directory):
         with open("directorios.json", "r") as file:
             d = json.load(file)
         
-        #hacemos la ruta y comprobamos que el directorio a borrar existe en la lista de hijos, si no, lanzamos la excepción
-        path = self.name + "/" + name
-        if path.split("/")[len(self.name.split("/"))] in self.childrens:
-            #Borramos recursivamente los directorios
+        #comprobamos si el directorio existe en la lista de hijos del directorio actual, si no, lanzamos la excepción
+        if name in self.childrens():
             for i in d[self.user]:
-                if i["name"] == path:
-                    newpath = path.split("/") 
-                    #borramos los directorios hijos
-                    for j in i["childrens"]:
-                        self.removeChild("/".join(newpath[len(self.name.split("/")):]) + "/" + j)
-                    #quitar files
-                    #borramos el string de la lista de hijos del padre
-                    for k in d[self.user]:
-                            if k["name"] == "/".join(newpath[:-1]):
-                                k["childrens"].remove(newpath[-1])
-                                #quitar files
-                    #eliminamos el directorio de mayor profundidad a menos hasta llegar al que se solicitaba
+                if i["name"] == self.name:
+                    #creamos un objeto Directory para llamar recurrentemente al metodo removeChild
+                    dir = Directory(self.user)
+                    dir.name = self.name + "/" + name
+                    i["childrens"].remove(name)
+                    self.childrens.remove(name)
+                    for j in d[dir.user]:
+                        if j["name"] == dir.name:
+                            #borramos a los hijos
+                            for k in j["childrens"]:
+                                dir.removeChild(k)
+                            #borramos con unLink los ficheros de losdirectorios que se van a borrar
+                            for l in list(j["files"].keys()):
+                                dir.unlinkFile(l)
                     d[self.user].remove(i)
 
             #Guardamos el json modificado
@@ -141,15 +141,62 @@ class Directory(IceDrive.Directory):
     
     def getBlobId(self, filename: str, current: Ice.Current = None) -> str:
         """Return the "blob id" for a given file name inside the directory."""
-        #
+        #comprobamos si existe el fichero en el directorio actual, en caso contrario lanzamos la excepción
+        if filename in self.files.keys():
+            return self.files[filename]
+        else:
+            raise IceDrive.FileNotFound(filename)
 
     def linkFile(
         self, filename: str, blob_id: str, current: Ice.Current = None
     ) -> None:
         """Link a file to a given blob_id."""
+        #Comprobamos que no existe ya un fichero con el mismo nommbre, si no, lanzamos la excepción
+        if filename not in self.files.keys():
+            
+            #cargamos el json
+            with open("directorios.json", "r") as file:
+                d = json.load(file)
+
+            #guardamos los cambios en el directorio local y en el json
+            self.files[filename] = blob_id
+            for i in d[self.user]:
+                if i["name"] == self.name:
+                    self.files[filename] = blob_id
+            
+            #guardamos los cambios en el json
+            with open("directorios.json", "w") as file:
+                json.dump(d, file)
+
+            #si todo va bien devolvemos None
+            return None
+        else:
+            raise IceDrive.FileAlreadyExists(filename)
+
 
     def unlinkFile(self, filename: str, current: Ice.Current = None) -> None:
         """Unlink (remove) a filename from the current directory."""
+        #comprobamos que existe el fichero a borrar en el direcrtorio actual
+        if filename in self.files.keys():
+
+            #cargamos el json
+            with open("directorios.json", "r") as file:
+                d = json.load(file)
+
+            #borramos los cambios en el directorio local y en el json
+            del self.files[filename]
+            for i in d[self.user]:
+                if i["name"] == self.name:
+                    del self.files[filename]
+            
+            #guardamos los cambios en el json
+            with open("directorios.json", "w") as file:
+                json.dump(d, file)
+
+            #si todo va bien devolvemos None
+            return None
+        else:
+            raise IceDrive.FileNotFound(filename)
 
 
 class DirectoryService(IceDrive.DirectoryService):
@@ -174,7 +221,7 @@ class DirectoryService(IceDrive.DirectoryService):
             root.name = "root"
             d[user] = []
             d[user].append(
-                {"name": "root", "childrens": [], "files": []}
+                {"name": "root", "childrens": [], "files": {}}
             )
             with open("directorios.json", "w") as file:
                 json.dump(d, file)
