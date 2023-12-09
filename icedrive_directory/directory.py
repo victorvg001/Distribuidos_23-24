@@ -121,8 +121,8 @@ class Directory(IceDrive.Directory):
                             for k in j["childrens"]:
                                 dir.removeChild(k)
                             #borramos con unLink los ficheros de losdirectorios que se van a borrar
-                            for l in list(j["files"].keys()):
-                                dir.unlinkFile(l)
+                            for F in list(j["files"].keys()):
+                                dir.unlinkFile(F)
                     d[self.user].remove(i)
 
             #Guardamos el json modificado
