@@ -25,5 +25,19 @@
             "childrens": [],
             "files": {}
         }
+    ],
+    "user2": [
+        {
+            "name": "root",
+            "childrens": [
+                "dir1"
+            ],
+            "files": {}
+        },
+        {
+            "name": "root/dir1",
+            "childrens": [],
+            "files": {}
+        }
     ]
 }

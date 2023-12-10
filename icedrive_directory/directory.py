@@ -8,7 +8,6 @@ import IceDrive
 
 import json
 
-
 class Directory(IceDrive.Directory):
     """Implementation of the IceDrive.Directory interface."""
 
@@ -51,7 +50,7 @@ class Directory(IceDrive.Directory):
     def getChild(self, name: str, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Return the proxy to one specific directory inside the current one."""
         #comprobamos si el hijo que se quiere existe en la lista de hijos, si no, lanzamos la excepción
-        if name in self.children:
+        if name in self.childrens:
             with open("directorios.json", "r") as file:
                 d = json.load(file)
             
@@ -84,7 +83,12 @@ class Directory(IceDrive.Directory):
             #registramos el hijo en el directorio actual
             for i in d[self.user]:
                 if i["name"] == self.name:
-                    self.childrens.append(name)
+                    i["childrens"].append(name)
+
+            #añadimos el nuevo directorio
+            d[self.user].append(
+                {"name": (self.name + "/" + name), "childrens": [], "files": {}}
+            )
             
             #creamos y damos nombre al nuevo directorio
             newChild = Directory(self.user)
@@ -217,7 +221,7 @@ class DirectoryService(IceDrive.DirectoryService):
             d = json.load(file)
 
         #comprobamos si ya tiene directorios y lo cargamos, si no tiene lo creamos
-        if d[user]:
+        if user in d.keys():
             root = Directory(user)
             root.name = d[user][0]["name"]
             root.childrens = d[user][0]["childrens"]
