@@ -92,7 +92,7 @@ class Directory(IceDrive.Directory):
 
             #escribimos el json
             with open("directorios.json", "w") as file:
-                json.dump(d, file)
+                json.dump(d, file, indent=4)
             
             #enviamos el proxi del nuevo hijo
             proxy = current.adapter.addWithUUID(newChild)
@@ -105,9 +105,9 @@ class Directory(IceDrive.Directory):
         #cargamos el json
         with open("directorios.json", "r") as file:
             d = json.load(file)
-        
+      
         #comprobamos si el directorio existe en la lista de hijos del directorio actual, si no, lanzamos la excepción
-        if name in self.childrens():
+        if name in self.childrens:
             for i in d[self.user]:
                 if i["name"] == self.name:
                     #creamos un objeto Directory para llamar recurrentemente al metodo removeChild
@@ -115,19 +115,28 @@ class Directory(IceDrive.Directory):
                     dir.name = self.name + "/" + name
                     i["childrens"].remove(name)
                     self.childrens.remove(name)
+                    with open("directorios.json", "w") as file:
+                        json.dump(d, file, indent=4)
                     for j in d[dir.user]:
                         if j["name"] == dir.name:
+                            dir.childrens = j["childrens"]
+                            dir.files = j["files"]
                             #borramos a los hijos
+                            print(j)
                             for k in j["childrens"]:
                                 dir.removeChild(k)
+
+                            with open("directorios.json", "r") as file:
+                                d = json.load(file)
+
                             #borramos con unLink los ficheros de losdirectorios que se van a borrar
                             for F in list(j["files"].keys()):
                                 dir.unlinkFile(F)
-                    d[self.user].remove(i)
+                            d[self.user].remove(j)
 
             #Guardamos el json modificado
             with open("directorios.json", "w") as file:
-                json.dump(d, file)
+                json.dump(d, file, indent=4)
 
             #si todo va bien devolvemos None
             return None
@@ -162,11 +171,11 @@ class Directory(IceDrive.Directory):
             self.files[filename] = blob_id
             for i in d[self.user]:
                 if i["name"] == self.name:
-                    self.files[filename] = blob_id
+                    i["files"][filename] = blob_id
             
             #guardamos los cambios en el json
             with open("directorios.json", "w") as file:
-                json.dump(d, file)
+                json.dump(d, file, indent=4)
 
             #si todo va bien devolvemos None
             return None
@@ -187,11 +196,11 @@ class Directory(IceDrive.Directory):
             del self.files[filename]
             for i in d[self.user]:
                 if i["name"] == self.name:
-                    del self.files[filename]
+                    del i["files"][filename]
             
             #guardamos los cambios en el json
             with open("directorios.json", "w") as file:
-                json.dump(d, file)
+                json.dump(d, file, indent=4)
 
             #si todo va bien devolvemos None
             return None
@@ -224,7 +233,7 @@ class DirectoryService(IceDrive.DirectoryService):
                 {"name": "root", "childrens": [], "files": {}}
             )
             with open("directorios.json", "w") as file:
-                json.dump(d, file)
+                json.dump(d, file, indent=4)
 
             proxy = current.adapter.addWithUUID(root)
             return IceDrive.DirectoryPrx.uncheckedCast(proxy)

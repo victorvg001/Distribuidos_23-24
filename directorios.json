@@ -1,24 +1,29 @@
 {
-    "user1":[
+    "user1": [
         {
-            "name" : "root",
-            "childrens" : ["dir1", "dir2"],
-            "files" : {}
+            "name": "root",
+            "childrens": [
+                "dir1",
+                "dir2"
+            ],
+            "files": {}
         },
         {
-            "name" : "root/dir1",
-            "childrens" : ["dir1"],
-            "files" : {}
+            "name": "root/dir1",
+            "childrens": [
+                "dir1"
+            ],
+            "files": {}
         },
         {
-            "name" : "root/dir1/dir1",
-            "childrens" : [],
-            "files" : {}
+            "name": "root/dir1/dir1",
+            "childrens": [],
+            "files": {}
         },
         {
-            "name" : "root/dir2",   
-            "childrens" : [],
-            "files" : {}
+            "name": "root/dir2",
+            "childrens": [],
+            "files": {}
         }
     ]
 }
