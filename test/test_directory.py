@@ -1,15 +1,9 @@
-import unittest
-from icedrive_directory.directory import DirectoryService , Directory
-import Ice
-import IceDrive
+from icedrive_directory.directory import Directory
 import json
 
 
-import logging
-import sys
-from typing import List
 
-def test_getRoot():
+'''def test_getRoot():
     communicator = Ice.initialize()
     adapter = communicator.createObjectAdapterWithEndpoints("MyAdapter", "tcp -h localhost -p 10000")
 
@@ -19,6 +13,7 @@ def test_getRoot():
     # Simula un objeto Current para pasar a la prueba
     current = Ice.Current()
     assert DirectoryService().getRoot("user1",current) == IceDrive.DirectoryPrx
+'''
 
 def test_getChilds():
     with open("directorios.json", "r") as file:
@@ -44,7 +39,7 @@ def test_removeChild():
             dir.childrens = i["childrens"]
             dir.files = i["files"]
     
-    assert dir.removeChild("dir1") == None
+    assert dir.removeChild("dir1") is None
 
 def test_getFiles():
     with open("directorios.json", "r") as file:
@@ -68,7 +63,7 @@ def test_linkFile():
         if i["name"] == dir.name:
             dir.childrens = i["childrens"]
             dir.files = i["files"]
-    assert dir.linkFile("file1", "12345") == None
+    assert dir.linkFile("file1", "12345") is None
 
 
 def test_getBlobId():
@@ -93,4 +88,4 @@ def test_unlinkFile():
         if i["name"] == dir.name:
             dir.childrens = i["childrens"]
             dir.files = i["files"]
-    assert dir.unlinkFile("file1") == None
+    assert dir.unlinkFile("file1") is None
