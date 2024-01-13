@@ -17,6 +17,9 @@ class Directory(IceDrive.Directory):
         self.childrens = []
         self.files = {}
 
+    def getPath(self, current: Ice.Current = None) -> str:
+        """Return the path for the directory within the user space."""
+
     def getParent(self, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Return the proxy to the parent directory, if it exists. None in other case."""
         #comprobamos que tiene padre, si no lo tiene lanzamos la excepción
@@ -215,7 +218,7 @@ class Directory(IceDrive.Directory):
 class DirectoryService(IceDrive.DirectoryService):
     """Implementation of the IceDrive.Directory interface."""
 
-    def getRoot(self, user: str, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
+    def getRoot(self, user: IceDrive.UserPrx, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Return the proxy for the root directory of the given user."""
         with open("directorios.json", "r") as file:
             d = json.load(file)
