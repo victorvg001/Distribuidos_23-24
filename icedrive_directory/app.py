@@ -35,7 +35,11 @@ class DirectoryApp(Ice.Application):
         adapter = self.communicator().createObjectAdapter("DirectoryAdapter")
         adapter.activate()
 
-        
+        discovery = Discovery()
+        discovery_proxy = adapter.addWithUUID(discovery)
+
+        servant = DirectoryService(discovery)
+        servant_proxy = adapter.addWithUUID(servant)
 
         logging.info("Proxy: %s", servant_proxy)
 
@@ -44,11 +48,7 @@ class DirectoryApp(Ice.Application):
         announce_thread = threading.Thread(target=self.sendAnnouncement, args= (discovery_pub, directory_proxy), daemon=True)
         announce_thread.start()
 
-        discovery = Discovery()
-        discovery_proxy = adapter.addWithUUID(discovery)
-
-        servant = DirectoryService(discovery)
-        servant_proxy = adapter.addWithUUID(servant)
+        
 
         """Suscripcion al topic"""
 
