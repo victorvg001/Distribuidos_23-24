@@ -12,16 +12,16 @@ class Discovery(IceDrive.Discovery):
 
     def announceAuthentication(self, prx: IceDrive.AuthenticationPrx, current: Ice.Current = None) -> None:
         """Receive an Authentication service announcement."""
-        logging.info("AutProxy: %s", prx)
+        print("AutProxy: %s", prx)
         self.announceAuthentication_set.add(prx)
 
     def announceDirectoryService(self, prx: IceDrive.DirectoryServicePrx, current: Ice.Current = None) -> None:
         """Receive an Directory service announcement."""
-        logging.info("DirProxy: %s", prx)
+        print("DirProxy: %s", prx)
 
     def announceBlobService(self, prx: IceDrive.BlobServicePrx, current: Ice.Current = None) -> None:
         """Receive an Blob service announcement."""
-        logging.info("BlobProxy: %s", prx)
+        print("BlobProxy: %s", prx)
         self.announceBlobService_set.add(prx)
 
     def get_Authentication(self)-> IceDrive.AuthenticationPrx:
@@ -34,7 +34,7 @@ class Discovery(IceDrive.Discovery):
                 return prx
             except Ice.Exception:
                 self.announceAuthentication_set.remove(prx)
-                
+
         return None
                 
             
