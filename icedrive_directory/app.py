@@ -35,8 +35,7 @@ class DirectoryApp(Ice.Application):
         adapter = self.communicator().createObjectAdapter("DirectoryAdapter")
         adapter.activate()
 
-        servant = DirectoryService()
-        servant_proxy = adapter.addWithUUID(servant)
+        
 
         logging.info("Proxy: %s", servant_proxy)
 
@@ -47,6 +46,9 @@ class DirectoryApp(Ice.Application):
 
         discovery = Discovery()
         discovery_proxy = adapter.addWithUUID(discovery)
+
+        servant = DirectoryService(discovery)
+        servant_proxy = adapter.addWithUUID(servant)
 
         """Suscripcion al topic"""
 

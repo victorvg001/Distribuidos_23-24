@@ -217,6 +217,8 @@ class Directory(IceDrive.Directory):
 
 class DirectoryService(IceDrive.DirectoryService):
     """Implementation of the IceDrive.Directory interface."""
+    def __init__(self, discovery):
+        self.discovery = discovery
 
     def getRoot(self, user: IceDrive.UserPrx, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Return the proxy for the root directory of the given user."""
@@ -244,3 +246,7 @@ class DirectoryService(IceDrive.DirectoryService):
 
             proxy = current.adapter.addWithUUID(root)
             return IceDrive.DirectoryPrx.uncheckedCast(proxy)
+
+    def VerificarUser(self):
+        return None
+        
