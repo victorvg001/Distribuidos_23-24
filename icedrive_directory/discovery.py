@@ -1,5 +1,4 @@
 """Servant implementations for service discovery."""
-import logging
 import Ice
 
 import IceDrive
