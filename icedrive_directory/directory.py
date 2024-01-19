@@ -222,31 +222,44 @@ class DirectoryService(IceDrive.DirectoryService):
 
     def getRoot(self, user: IceDrive.UserPrx, current: Ice.Current = None) -> IceDrive.DirectoryPrx:
         """Return the proxy for the root directory of the given user."""
-        with open("directorios.json", "r") as file:
-            d = json.load(file)
+        AutenticationPrx = self.discovery.get_Authentication()
+        if AutenticationPrx !=None:
+            if self.VerificarUser(AutenticationPrx,user) == True:
+                with open("directorios.json", "r") as file:
+                    d = json.load(file)
 
-        #comprobamos si ya tiene directorios y lo cargamos, si no tiene lo creamos
-        if user in d.keys():
-            root = Directory(user)
-            root.name = d[user][0]["name"]
-            root.childrens = d[user][0]["childrens"]
-            root.files = d[user][0]["files"]
+                #comprobamos si ya tiene directorios y lo cargamos, si no tiene lo creamos
+                if user.getUsername() in d.keys():
+                    root = Directory(user.getUsername())
+                    root.name = d[user.getUsername()][0]["name"]
+                    root.childrens = d[user.getUsername()][0]["childrens"]
+                    root.files = d[user.getUsername()][0]["files"]
 
-            proxy = current.adapter.addWithUUID(root)
-            return IceDrive.DirectoryPrx.uncheckedCast(proxy)
+                    proxy = current.adapter.addWithUUID(root)
+                    return IceDrive.DirectoryPrx.uncheckedCast(proxy)
+                else:
+                    root = Directory(user.getUsername())
+                    root.name = "root"
+                    d[user.getUsername()] = []
+                    d[user.getUsername()].append(
+                        {"name": "root", "childrens": [], "files": {}}
+                    )
+                    with open("directorios.json", "w") as file:
+                        json.dump(d, file, indent=4)
+
+                    proxy = current.adapter.addWithUUID(root)
+                    return IceDrive.DirectoryPrx.uncheckedCast(proxy)
+            else:
+                raise IceDrive.TemporaryUnavailable("AuthenticationService")
         else:
-            root = Directory(user)
-            root.name = "root"
-            d[user] = []
-            d[user].append(
-                {"name": "root", "childrens": [], "files": {}}
-            )
-            with open("directorios.json", "w") as file:
-                json.dump(d, file, indent=4)
+            raise IceDrive.TemporaryUnavailable("AuthenticationService")
 
-            proxy = current.adapter.addWithUUID(root)
-            return IceDrive.DirectoryPrx.uncheckedCast(proxy)
-
-    def VerificarUser(self):
-        return None
+    def VerificarUser(self,prx : IceDrive.AuthenticationPrx, user: IceDrive.UserPrx) -> bool:
+        if prx.verifyUser(user) == True:
+            if user.isAlive() == True:
+                return True
+            else: 
+                return False
+        else:
+            return False
         
